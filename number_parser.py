@@ -33,78 +33,11 @@ def get_number(debug,file_path: str) -> str:
     # 'snis-829'
     # """
     filepath = os.path.basename(file_path)
-    # debug True 和 False 两块代码块合并，原因是此模块及函数只涉及字符串计算，没有IO操作，debug on时输出导致异常信息即可
-    try:
-        file_number = get_number_by_dict(filepath)
-        if file_number:
-            return file_number
-        elif '-' in filepath or '_' in filepath:  # 普通提取番号 主要处理包含减号-和_的番号
-            filepath = G_spat.sub("", filepath)
-            filename = str(re.sub("\[\d{4}-\d{1,2}-\d{1,2}\] - ", "", filepath))  # 去除文件名中时间
-            lower_check = filename.lower()
-            if 'fc2' in lower_check:
-                filename = lower_check.replace('ppv', '').replace('--', '-').replace('_', '-').upper()
-            filename = re.sub("(-|_)cd\d{1,2}", "", filename, flags=re.IGNORECASE)
-            file_number = str(re.search(r'\w+(-|_)\w+', filename, re.A).group())
-            file_number = re.sub("(-|_)c$", "", file_number, flags=re.IGNORECASE)
-            return file_number.upper()
-        else:  # 提取不含减号-的番号，FANZA CID
-            # 欧美番号匹配规则
-            oumei = re.search(r'[a-zA-Z]+\.\d{2}\.\d{2}\.\d{2}', filepath)
-            if oumei:
-                return oumei.group()
-            try:
-                return str(
-                    re.findall(r'(.+?)\.',
-                                str(re.search('([^<>/\\\\|:""\\*\\?]+)\\.\\w+$', filepath).group()))).strip(
-                    "['']").replace('_', '-')
-            except:
-                return str(re.search(r'(.+?)\.', filepath)[0])
-    except Exception as e:
-        if debug:
-            print(f'[-]Number Parser exception: {e} [{file_path}]')
-        return None
-
-
-# 按javdb数据源的命名规范提取number
-G_TAKE_NUM_RULES = {
-    'tokyo.*hot' : lambda x:str(re.search(r'(cz|gedo|k|n|red-|se)\d{2,4}', x, re.I).group()),
-    'carib' : lambda x:str(re.search(r'\d{6}(-|_)\d{3}', x, re.I).group()).replace('_', '-'),
-    '1pon|mura|paco' : lambda x:str(re.search(r'\d{6}(-|_)\d{3}', x, re.I).group()).replace('-', '_'),
-    '10mu'  : lambda x:str(re.search(r'\d{6}(-|_)\d{2}', x, re.I).group()).replace('-', '_'),
-    'x-art' : lambda x:str(re.search(r'x-art\.\d{2}\.\d{2}\.\d{2}', x, re.I).group()),
-    'xxx-av': lambda x:''.join(['xxx-av-', re.findall(r'xxx-av[^\d]*(\d{3,5})[^\d]*', x, re.I)[0]]),
-    'heydouga': lambda x:'heydouga-' + '-'.join(re.findall(r'(\d{4})[\-_](\d{3,4})[^\d]*', x, re.I)[0]),
-    'heyzo' : lambda x: 'HEYZO-' + re.findall(r'heyzo[^\d]*(\d{4})', x, re.I)[0]
-}
-
-def get_number_by_dict(filename: str) -> str:
-    try:
-        for k,v in G_TAKE_NUM_RULES.items():
-            if re.search(k, filename, re.I):
-                return v(filename)
-    except:
-        pass
-    return None
-
-class Cache_uncensored_conf:
-    prefix = None
-    def is_empty(self):
-        return bool(self.prefix is None)
-    def set(self, v: list):
-        if not v or not len(v) or not len(v[0]):
-            raise ValueError('input prefix list empty or None')
-        s = v[0]
-        if len(v) > 1:
-            for i in v[1:]:
-                s += f"|{i}.+"
-        self.prefix = re.compile(s, re.I)
-    def check(self, number):
-        if self.prefix is None:
-            raise ValueError('No init re compile')
-        return self.prefix.match(number)
-
-G_cache_uncensored_conf = Cache_uncensored_conf()
+    filename = filepath.split('.')[0]
+    if '-cd' or '-CD' in filename:
+        file_number = re.sub(r'-[Cc][Dd][0-9]', '', filename)
+        return file_number
+    return filename
 
 # ========================================================================是否为无码
 def is_uncensored(number):
