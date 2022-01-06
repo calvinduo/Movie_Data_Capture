@@ -151,6 +151,17 @@ def getCover(text, number):
     return result
 
 
+def getCover_videoc(text, number):
+    html = etree.fromstring(text, etree.HTMLParser())
+    cover_number = number
+    try:
+        result = html.xpath('//*[@id="package-src-' + cover_number + '"]/@src')[0]
+    except:
+        raise ValueError("can not find image")
+    print("getCover=====>"+result)
+    return result
+
+
 def getDirector(text):
     html = etree.fromstring(text, etree.HTMLParser())  # //table/tr[1]/td[1]/text()
     try:
@@ -252,15 +263,15 @@ def main(number):
         fanza_hinban = getNum(htmlcode)
         data = {
             "title": getTitle(htmlcode).strip(),
-            "studio": getStudio(htmlcode),
+            "studio": getStudio(htmlcode) if "videoc" not in chosen_url else "",
             "outline": getOutline(htmlcode),
             "runtime": getRuntime(htmlcode),
-            "director": getDirector(htmlcode) if "anime" not in chosen_url else "",
+            "director": getDirector(htmlcode) "" if "anime" in chosen_url else getDirector(htmlcode) if "videoc" not in chosen_url else "",
             "actor": getActor(htmlcode) if "anime" not in chosen_url else "",
             "release": getRelease(htmlcode),
             "number": fanza_hinban,
-            "cover": getCover(htmlcode, fanza_hinban),
-            "imagecut": 1,
+            "cover": getCover(htmlcode, fanza_hinban) if "videoc" not in chosen_url else getCover_videoc(htmlcode, fanza_hinban),
+            "imagecut": 1 if "videoc" not in chosen_url else 0,
             "tag": getTag(htmlcode),
             "extrafanart": getExtrafanart(htmlcode),
             "label": getLabel(htmlcode),
@@ -270,7 +281,7 @@ def main(number):
             "actor_photo": "",
             "website": chosen_url,
             "source": "fanza.py",
-            "series": getSeries(htmlcode),
+            "series": getSeries(htmlcode) if "videoc" not in chosen_url else "",
         }
     except:
         data = {
