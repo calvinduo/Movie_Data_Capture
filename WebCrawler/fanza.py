@@ -266,7 +266,7 @@ def main(number):
             "studio": getStudio(htmlcode) if "videoc" not in chosen_url else "",
             "outline": getOutline(htmlcode),
             "runtime": getRuntime(htmlcode),
-            "director": getDirector(htmlcode) "" if "anime" in chosen_url else getDirector(htmlcode) if "videoc" not in chosen_url else "",
+            "director": getDirector(htmlcode)  if "anime" in chosen_url else getDirector(htmlcode) if "videoc" not in chosen_url else "",
             "actor": getActor(htmlcode) if "anime" not in chosen_url else "",
             "release": getRelease(htmlcode),
             "number": fanza_hinban,
