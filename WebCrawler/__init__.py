@@ -148,7 +148,7 @@ def get_data_from_json(file_number, oCC):  # 从JSON返回元数据
     # 目前选用number命名规则是javdb.com Domain Creation Date: 2013-06-19T18:34:27Z
     # 然而也可以跟进关注其它命名规则例如airav.wiki Domain Creation Date: 2019-08-28T07:18:42.0Z
     # 如果将来javdb.com命名规则下不同Studio出现同名碰撞导致无法区分，可考虑更换规则，更新相应的number分析和抓取代码。
-    if str(json_data.get('number')).upper() != file_number.upper():
+    if str(json_data.get('number')).upper() != file_number.upper() and and str(json_data.get('source')).lower() != 'fanza.py':
         print('[-]Movie number has changed! [{}]->[{}]'.format(file_number, str(json_data.get('number'))))
         return None
 
